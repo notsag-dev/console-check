@@ -1,6 +1,6 @@
 {
   "name": "console-check",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Get console logs and errors for a list of urls",
   "main": "index.js",
   "scripts": {
