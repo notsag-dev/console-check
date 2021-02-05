@@ -7,7 +7,8 @@ const fs = require('fs');
 const sleep = util.promisify(setTimeout);
 
 const urls = [];
-const maxConcurrentDownloads = 20;
+let timeToKeepPageOpen = 1000;
+let concurrency = 10;
 
 process.stdin.setEncoding('utf-8');
 process.stdin.resume();
@@ -18,7 +19,11 @@ process.stdin.pipe(split()).on('data', (line) => {
 function logHelp() {
   console.log(`
     NAME
-      console-check -- Get console logs and errors for a list of urls.
+      console-check -- Get console messages for a list of urls.
+
+    OPTIONS
+      -k, --keep-open {ms} (default 1000) Milliseconds to wait until closing each page
+      -c, --concurrency {n} (default 10)  Concurrency level
 
     EXAMPLES
       cat urls.txt | console-check
@@ -36,7 +41,35 @@ async function getPage(browser, url) {
     .on('console', (message) => (printMessage(url, message)))
     .on('pageerror', (message) => (printMessage(url, message)))
   await page.goto(url);
+  await sleep(timeToKeepPageOpen);
   page.close();
+}
+
+function getArgValue(args, shortFlag, longFlag) {
+  const ind = Math.max(args.indexOf(shortFlag), args.indexOf(longFlag));
+  if (ind >= 0) {
+    if (ind + 1 === args.length) {
+      return { found: true, value: undefined };
+    }
+    return { found: true, value: args[ind + 1] };
+  }
+  return { found: false };
+}
+
+function getNumericArgValue(args, shortFlag, longFlag) {
+  const result = getArgValue(args, shortFlag, longFlag);
+  if (result.found && result.value === undefined) {
+    logHelp();
+    process.exit(0);
+  }
+  if (result.found) {
+    try {
+      return parseInt(result.value);
+    } catch (err) {
+      logHelp();
+      process.exit(0);
+    }
+  }
 }
 
 async function main() {
@@ -45,6 +78,15 @@ async function main() {
     logHelp();
     process.exit(0);
   }
+  const keepOpenArg = getNumericArgValue(args, '-k', '--keep-open');
+  if (keepOpenArg !== undefined) {
+    timeToKeepPageOpen = keepOpenArg;
+  }
+
+  const concurrencyArg = getNumericArgValue(args, '-c', '--concurrency');
+  if (concurrencyArg !== undefined) {
+    concurrency = concurrencyArg;
+  }
 
   const browser = await puppeteer.launch({
     timeout: 5000,
@@ -52,24 +94,32 @@ async function main() {
     headless: true
   });
   
-  let url = urls.shift();
-  while (url) {
-    const promises = [];
-    for (let i = 0; i < maxConcurrentDownloads; i++) {
-      promises.push(getPage(browser, url));
-      url = urls.shift();
-      if (!url) {
-        break;
-      }
+  for (let i = 0; i < concurrency; i++) {
+    worker(browser);
+  }
+}
+
+let closedWorkers = 0;
+function closeWorker() {
+  closedWorkers++;
+  if (closedWorkers === concurrency) {
+    process.exit(0);
+  }
+}
+
+async function worker(browser) {
+  while (true) {
+    let url = urls.shift();
+    if (!url) {
+      break;
     }
     try {
-      await Promise.all(promises);
+      await getPage(browser, url);
     } catch (err) {
       console.error(err);
     }
   }
-
-  browser.close();
+  closeWorker();
 }
 
 main();
