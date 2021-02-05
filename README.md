@@ -1,5 +1,5 @@
 # console-check
-Get console logs, warnings and errors for a list of urls. It uses Puppeteer to navigate to the urls and capture console messages which are then sent to stdout (if any) with the following format:
+Get console logs, warnings and errors for a list of urls. It uses a headless browser to navigate to the urls and capture console messages which are then sent to stdout (if any) with the following format:
 
 ```{url}:{ERROR | WARNING | LOG}:{message}```
 
