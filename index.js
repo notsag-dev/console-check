@@ -32,7 +32,7 @@ function logHelp() {
 };
 
 function printMessage(url, message) {
-  console.log(`${url}:${message.type().toUpperCase()}:${message.text()}\n`);
+  console.log(`${url}:${message.type().toUpperCase()}:${message.text()}`);
 }
 
 async function getPage(browser, url) {
