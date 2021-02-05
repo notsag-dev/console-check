@@ -1,0 +1,20 @@
+{
+  "name": "console-check",
+  "version": "0.0.1",
+  "description": "Get console logs and errors for a list of urls",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin": {
+    "console-check": "./index.js"
+  },
+  "author": "notsag-dev",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "npm": "7.5.2",
+    "puppeteer": "7.0.0",
+    "split": "1.0.1"
+  },
+  "url": "git://github.com/notsag-dev/console-check.git"
+}
