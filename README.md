@@ -17,7 +17,7 @@ $ console-check --help
 
     OPTIONS
       -k, --keep-open {ms} (default 1000) Milliseconds to wait until closing each page
-      -c, --concurrency {n} (default 10)  Concurrency level
+      -c, --concurrency {n} (default 10)  Max number of pages requested at the same time
 
     EXAMPLES
       cat urls.txt | console-check
