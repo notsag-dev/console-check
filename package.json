@@ -1,6 +1,6 @@
 {
   "name": "console-check",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Get console logs and errors for a list of urls",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,6 @@
   "author": "notsag-dev",
   "license": "GPL-3.0-or-later",
   "dependencies": {
-    "npm": "7.5.2",
     "puppeteer": "7.0.0",
     "split": "1.0.1"
   },
